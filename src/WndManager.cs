@@ -87,6 +87,25 @@ namespace u3WindowsManager
             File.WriteAllText("testentries.json", JsonSerializer.Serialize(entries));
         }
 
+        public void RestoreAllWindows()
+        {
+            List<SimpleEntry> entries = new();
+            //JsonSerializer.Deserialize()
+            //Dictionary<string, Process> windows = GetAllWindows();
+            /*
+            GetWindowPlacement(hWnd, out placement);
+            placement.showCmd = 1
+            SetWindowPlacement(hWnd, placement)
+            SetForegroundWindow(hWnd)
+            placement.rcNormalPosition.Left = entry.Left;
+            placement.rcNormalPosition.Top = entry.Top;
+            placement.rcNormalPosition.Bottom = entry.Bottom;
+            placement.rcNormalPosition.Right = entry.Right;
+            placement.showCmd = entry.showCmd;
+            SetWindowPlacement(hWnd, placement)
+            */
+        }
+
         private Dictionary<string, Process> GetAllWindows()
         {
             Dictionary<string, Process> wndList = new Dictionary<string, Process>();
