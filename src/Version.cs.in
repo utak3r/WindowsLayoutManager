@@ -1,0 +1,31 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace u3WindowsManager
+{
+    internal class Version
+    {
+        public int VersionMajor = @VERSION_MAJOR@;
+        public int VersionMinor = @VERSION_MINOR@;
+        public int VersionRevision = @VERSION_REVISION@;
+        public int VersionBuild = @VERSION_BUILD@;
+        public string VersionGitBranch = "@GIT_BRANCH@";
+        public string VersionCommitHash = "@GIT_COMMIT_HASH@";
+        public string VersionBuildDate = "@BUILD_DATE@";
+        public string VersionBuildTime = "@BUILD_TIME@";
+
+        public Version()
+        {
+            //
+        }
+
+        public string GetFullVersion()
+        {
+            return VersionMajor + "." + VersionMinor + "." + VersionRevision + "." + VersionBuild;
+        }
+
+    }
+}

@@ -12,6 +12,10 @@ namespace u3WindowsManager
 
         public TrayApp()
         {
+            // version info
+            Version version = new();
+            string versionString = version.GetFullVersion();
+
             // context menu
             ToolStripMenuItem mnuExit = new ToolStripMenuItem("Exit");
             mnuExit.Click += MnuExit_Click;
