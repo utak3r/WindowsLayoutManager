@@ -20,6 +20,7 @@ add_executable (
 			${CMAKE_CURRENT_BINARY_DIR}/Version.cs
 			Program.cs
 			TrayApp.cs
+			WndManager.cs
 			${RESOURCES_APP_ICON}
 		)
 
@@ -50,4 +51,6 @@ set_property (TARGET u3WindowsManager PROPERTY VS_DOTNET_REFERENCES
 			"System.Reflection"
 			"System.IO"
 			"System.Resources"
+			"System.Diagnostics"
+			"System.Text.Json"
 	  )

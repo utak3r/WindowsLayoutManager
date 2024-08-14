@@ -29,6 +29,10 @@ namespace u3WindowsManager
             theTray.Text = "u3WindowsManager";
 
             theTray.Visible = true;
+
+            // this is JUST FOR TESTS!
+            WndManager wndManager = new WndManager();
+            wndManager.SaveAllWindows();
         }
 
         private Icon? LoadIconFromResources(string resId)
