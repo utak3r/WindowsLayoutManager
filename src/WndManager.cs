@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.DirectoryServices;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using u3WindowsManager;
 
 namespace u3WindowsManager
@@ -44,6 +45,12 @@ namespace u3WindowsManager
         [DllImport("user32.dll")]
         static extern bool GetWindowPlacement(IntPtr hWnd, out WINDOWPLACEMENT lpPlacement);
 
+        [DllImport("user32.dll")]
+        static extern bool SetWindowPlacement(IntPtr hWnd, WINDOWPLACEMENT lpPlacement);
+
+        [DllImport("user32.dll")]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+
         public class SimpleEntry
         {
             public string Name { get; set; }
@@ -52,6 +59,18 @@ namespace u3WindowsManager
             public int Right { get; set; }
             public int Bottom { get; set; }
             public int ShowCmd { get; set; }
+
+            public bool Equals(SimpleEntry other)
+            {
+                if (other == null) return false;
+                return Name.Equals(other.Name);
+            }
+
+            public bool Equals(string name)
+            {
+                if (name == null) return false;
+                return Name.Equals(name);
+            }
         }
 
 
@@ -89,21 +108,37 @@ namespace u3WindowsManager
 
         public void RestoreAllWindows()
         {
-            List<SimpleEntry> entries = new();
-            //JsonSerializer.Deserialize()
-            //Dictionary<string, Process> windows = GetAllWindows();
-            /*
-            GetWindowPlacement(hWnd, out placement);
-            placement.showCmd = 1
-            SetWindowPlacement(hWnd, placement)
-            SetForegroundWindow(hWnd)
-            placement.rcNormalPosition.Left = entry.Left;
-            placement.rcNormalPosition.Top = entry.Top;
-            placement.rcNormalPosition.Bottom = entry.Bottom;
-            placement.rcNormalPosition.Right = entry.Right;
-            placement.showCmd = entry.showCmd;
-            SetWindowPlacement(hWnd, placement)
-            */
+            string file = File.ReadAllText("testentries.json", System.Text.Encoding.UTF8);
+            List<SimpleEntry> entries = JsonSerializer.Deserialize<List<SimpleEntry>>(file);
+
+            Dictionary<string, Process> windows = GetAllWindows();
+            foreach (string key in windows.Keys)
+            {
+                if (entries.Exists(x => x.Name == key))
+                {
+                    // The below IF is just for DEBUG!!
+                    // if (key == "TOTALCMD64")
+                    {
+                        SimpleEntry entry = entries.Find(x => x.Name == key);
+                        Process process = windows[key];
+                        IntPtr hWnd = process.MainWindowHandle;
+                        WINDOWPLACEMENT wndPlacement;
+                        RECT rect;
+
+                        GetWindowPlacement(hWnd, out wndPlacement);
+                        wndPlacement.showCmd = 1;
+                        SetWindowPlacement(hWnd, wndPlacement);
+                        SetForegroundWindow(hWnd);
+                        wndPlacement.rcNormalPosition.Left = entry.Left;
+                        wndPlacement.rcNormalPosition.Top = entry.Top;
+                        wndPlacement.rcNormalPosition.Bottom = entry.Bottom;
+                        wndPlacement.rcNormalPosition.Right = entry.Right;
+                        wndPlacement.showCmd = entry.ShowCmd;
+                        SetWindowPlacement(hWnd, wndPlacement);
+                    }
+                }
+            }
+
         }
 
         private Dictionary<string, Process> GetAllWindows()
