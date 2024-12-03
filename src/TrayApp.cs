@@ -17,10 +17,14 @@ namespace u3WindowsManager
             string versionString = version.GetFullVersion();
 
             // context menu
+            ToolStripMenuItem mnuSaveAll = new ToolStripMenuItem("Save all windows");
+            mnuSaveAll.Click += MnuSaveAll_Click;
+            ToolStripMenuItem mnuRestoreAll = new ToolStripMenuItem("Restore all windows");
+            mnuRestoreAll.Click += MnuRestoreAll_Click;
             ToolStripMenuItem mnuExit = new ToolStripMenuItem("Exit");
             mnuExit.Click += MnuExit_Click;
             ContextMenuStrip mnuMainMenu = new ContextMenuStrip();
-            mnuMainMenu.Items.AddRange([mnuExit]);
+            mnuMainMenu.Items.AddRange([mnuSaveAll, mnuRestoreAll, new ToolStripSeparator(), mnuExit]);
 
             // tray icon
             theTray = new NotifyIcon();
@@ -29,10 +33,6 @@ namespace u3WindowsManager
             theTray.Text = "u3WindowsManager";
 
             theTray.Visible = true;
-
-            // this is JUST FOR TESTS!
-            WndManager wndManager = new WndManager();
-            wndManager.SaveAllWindows();
         }
 
         private Icon? LoadIconFromResources(string resId)
@@ -56,6 +56,18 @@ namespace u3WindowsManager
                 theTray.Visible = false;
             }
             ExitThread();
+        }
+
+        private void MnuSaveAll_Click(object? sender, EventArgs e)
+        {
+            WndManager wndManager = new WndManager();
+            wndManager.SaveAllWindows();
+        }
+
+        private void MnuRestoreAll_Click(object? sender, EventArgs e)
+        {
+            WndManager wndManager = new WndManager();
+            wndManager.RestoreAllWindows();
         }
 
 
