@@ -141,6 +141,21 @@ namespace u3WindowsManager
 
         }
 
+        public void SelectWindowsAndSave()
+        {
+            WindowsSelectionList theWindowsSelect = new WindowsSelectionList();
+            Dictionary<string, Process> windows = GetAllWindows();
+            foreach (string key in windows.Keys)
+            {
+                theWindowsSelect.AddItem(key);
+            }
+            theWindowsSelect.ShowDialog();
+            if (theWindowsSelect.DialogResult == DialogResult.OK)
+            {
+                //
+            }
+        }
+
         private Dictionary<string, Process> GetAllWindows()
         {
             Dictionary<string, Process> wndList = new Dictionary<string, Process>();

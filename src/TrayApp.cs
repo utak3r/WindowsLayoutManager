@@ -17,6 +17,8 @@ namespace u3WindowsManager
             string versionString = version.GetFullVersion();
 
             // context menu
+            ToolStripMenuItem mnuSaveSelected = new ToolStripMenuItem("Select windows and save");
+            mnuSaveSelected.Click += MnuSaveSelected_Click;
             ToolStripMenuItem mnuSaveAll = new ToolStripMenuItem("Save all windows");
             mnuSaveAll.Click += MnuSaveAll_Click;
             ToolStripMenuItem mnuRestoreAll = new ToolStripMenuItem("Restore all windows");
@@ -24,7 +26,7 @@ namespace u3WindowsManager
             ToolStripMenuItem mnuExit = new ToolStripMenuItem("Exit");
             mnuExit.Click += MnuExit_Click;
             ContextMenuStrip mnuMainMenu = new ContextMenuStrip();
-            mnuMainMenu.Items.AddRange([mnuSaveAll, mnuRestoreAll, new ToolStripSeparator(), mnuExit]);
+            mnuMainMenu.Items.AddRange([mnuSaveSelected, new ToolStripSeparator(), mnuSaveAll, mnuRestoreAll, new ToolStripSeparator(), mnuExit]);
 
             // tray icon
             theTray = new NotifyIcon();
@@ -68,6 +70,12 @@ namespace u3WindowsManager
         {
             WndManager wndManager = new WndManager();
             wndManager.RestoreAllWindows();
+        }
+
+        private void MnuSaveSelected_Click(object sender, EventArgs e)
+        {
+            WndManager wndManager = new WndManager();
+            wndManager.SelectWindowsAndSave();
         }
 
 

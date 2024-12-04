@@ -21,6 +21,7 @@ add_executable (
 			Program.cs
 			TrayApp.cs
 			WndManager.cs
+			WindowsSelectionList.cs
 			${RESOURCES_APP_ICON}
 		)
 
