@@ -20,7 +20,7 @@ set_target_properties (
 			VS_GLOBAL_TestProjectType "UnitTest"
 			VS_GLOBAL_PROJECT_TYPES "{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
 			VS_DOTNET_REFERENCES "Microsoft.CSharp;System;System.Core"
-			VS_PACKAGE_REFERENCES "Microsoft.NET.Test.Sdk_17.12.0;NUnit_4.2.2;NUnit3TestAdapter_4.6.0;NUnit.Analyzers_4.4.0;Moq_4.20.72"
+			VS_PACKAGE_REFERENCES "Microsoft.NET.Test.Sdk_17.12.0;NUnit_4.2.2;NUnit3TestAdapter_4.6.0;NUnit.Analyzers_4.4.0;Moq_4.20.72;NUnit.ConsoleRunner_3.18.3;NUnit.Console_3.18.3"
 			CMAKE_VS_NUGET_PACKAGE_RESTORE ON
 			RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 			VS_GLOBAL_ImplicitUsings "enable"

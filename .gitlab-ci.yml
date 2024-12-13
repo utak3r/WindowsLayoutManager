@@ -1,6 +1,17 @@
+stages:
+  - build
+  - test
+
 build:
   tags:
     - visualstudio
     - windows
   script:
     - ./build_release.cmd
+
+test:
+  tags:
+    - visualstudio
+    - windows
+  script:
+    - c:\users\pito\.nuget\packages\nunit.consolerunner\3.18.3\tools\nunit3-console.exe .\build-release\bin\Release\u3WindowsManagerTest.dll
