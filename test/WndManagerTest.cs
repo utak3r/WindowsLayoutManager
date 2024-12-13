@@ -23,7 +23,7 @@ namespace u3WindowsManagerTests
         [Test]
         public void WndManagerTest_GetProcessWindowGeometry()
         {
-            Mock<WndManager.SystemAPICalls> systemAPICallsMock = new Mock<WndManager.SystemAPICalls>();
+            Mock<WndManager.ISystemAPICalls> systemAPICallsMock = new Mock<WndManager.ISystemAPICalls>();
             systemAPICallsMock.Setup(r => r.GetAPIWindowRect(It.IsAny<nint>()))
                 .Returns(new WndManager.RECT
                 {
@@ -54,8 +54,46 @@ namespace u3WindowsManagerTests
             Assert.That(entry.Right, Is.EqualTo(600));
             Assert.That(entry.Bottom, Is.EqualTo(400));
             Assert.That(entry.ShowCmd, Is.EqualTo(0));
-
-            Assert.Pass();
         }
+
+        [Test]
+        public void WndManagerTest_SaveDictionary()
+        {
+            Mock<WndManager.ISystemAPICalls> systemAPICallsMock = new Mock<WndManager.ISystemAPICalls>();
+            systemAPICallsMock.Setup(r => r.GetAPIWindowRect(It.IsAny<nint>()))
+                .Returns(new WndManager.RECT
+                {
+                    Left = 0,
+                    Top = 0,
+                    Right = 600,
+                    Bottom = 400
+                });
+            systemAPICallsMock.Setup(p => p.GetAPIWindowPlacement(It.IsAny<nint>()))
+                .Returns(new WndManager.WINDOWPLACEMENT
+                {
+                    length = 0,
+                    flags = 0,
+                    showCmd = 0,
+                    ptMinPosition = new WndManager.POINT { x = 0, y = 0 },
+                    ptMaxPosition = new WndManager.POINT { y = 0, x = 0 },
+                    rcNormalPosition = new WndManager.RECT { Left = 0, Top = 0, Right = 600, Bottom = 400 },
+                    rcDevice = new WndManager.RECT { Left = 0, Top = 0, Right = 600, Bottom = 400 }
+                });
+            systemAPICallsMock.Setup(h => h.GetProcessMainWindowHandle(It.IsAny<Process>()))
+                .Returns((IntPtr)1234);
+            systemAPICallsMock.Setup(n => n.GetProcessName(It.IsAny<Process>()))
+                .Returns("TestingProcessName");
+
+            Dictionary<string, Process> windows = new();
+            windows.Add("window_one", new Process());
+            windows.Add("window_two", new Process());
+            windows.Add("window_three", new Process());
+            WndManager wndManager = new();
+
+            List<SimpleEntry> wndlist = wndManager.SaveDictionary(windows, systemAPICallsMock.Object);
+
+            Assert.That(wndlist.Count, Is.EqualTo(3));
+        }
+
     }
 }

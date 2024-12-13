@@ -74,52 +74,70 @@ namespace u3WindowsManager
             }
         }
 
-        public class SystemAPICalls
+        public interface ISystemAPICalls
         {
-            public virtual RECT GetAPIWindowRect(IntPtr hWnd)
+            RECT GetAPIWindowRect(IntPtr hWnd);
+            WINDOWPLACEMENT GetAPIWindowPlacement(IntPtr hWnd);
+            Process[] GetProcesses();
+            IntPtr GetProcessMainWindowHandle(Process process);
+            string GetProcessMainWindowTitle(Process process);
+            string GetProcessName(Process process);
+            bool IsProcessResponding(Process process);
+            void FileWriteAllText(string path, string text);
+            string FileReadAllText(string filename);
+        }
+
+        public class SystemAPICalls : ISystemAPICalls
+        {
+            public RECT GetAPIWindowRect(IntPtr hWnd)
             {
                 RECT rect;
                 GetWindowRect(hWnd, out rect);
                 return rect;
             }
 
-            public virtual WINDOWPLACEMENT GetAPIWindowPlacement(IntPtr hWnd)
+            public WINDOWPLACEMENT GetAPIWindowPlacement(IntPtr hWnd)
             {
                 WINDOWPLACEMENT wndPlacement;
                 GetWindowPlacement(hWnd, out wndPlacement);
                 return wndPlacement;
             }
 
-            public virtual Process[] GetProcesses()
+            public Process[] GetProcesses()
             {
                 return Process.GetProcesses();
             }
 
-            public virtual IntPtr GetProcessMainWindowHandle(Process process)
+            public IntPtr GetProcessMainWindowHandle(Process process)
             {
                 return process.MainWindowHandle;
             }
 
-            public virtual string GetProcessName(Process process)
+            public string GetProcessMainWindowTitle(Process process)
+            {
+                return process.MainWindowTitle;
+            }
+
+            public string GetProcessName(Process process)
             {
                 return process.ProcessName;
             }
 
-        }
-
-        public class ConfigFileOperations
-        {
-            public static void SaveEntriesToFile(string filename, List<SimpleEntry> entries)
+            public bool IsProcessResponding(Process process)
             {
-                File.WriteAllText(filename, JsonSerializer.Serialize(entries));
+                return process.Responding;
             }
 
-            public static List<SimpleEntry> ReadEntriesFromFile(string filename)
+            public void FileWriteAllText(string path, string text)
             {
-                string file = File.ReadAllText(filename, System.Text.Encoding.UTF8);
-                List<SimpleEntry> entries = JsonSerializer.Deserialize<List<SimpleEntry>>(file);
-                return entries;
+                File.WriteAllText(path, text);
             }
+
+            public string FileReadAllText(string filename)
+            {
+                return File.ReadAllText(filename, System.Text.Encoding.UTF8);
+            }
+
         }
 
         public WndManager()
@@ -127,7 +145,7 @@ namespace u3WindowsManager
             //
         }
 
-        public SimpleEntry GetProcessWindowGeometry(Process process, SystemAPICalls systemAPICalls)
+        public SimpleEntry GetProcessWindowGeometry(Process process, ISystemAPICalls systemAPICalls)
         {
             IntPtr hWnd = systemAPICalls.GetProcessMainWindowHandle(process);
             RECT rect = systemAPICalls.GetAPIWindowRect(hWnd);
@@ -144,25 +162,25 @@ namespace u3WindowsManager
             return entry;
         }
 
-        private Dictionary<string, Process> GetAllWindows(SystemAPICalls systemAPICalls)
+        private Dictionary<string, Process> GetAllWindows(ISystemAPICalls systemAPICalls)
         {
             Dictionary<string, Process> wndList = new Dictionary<string, Process>();
             Process[] processes = systemAPICalls.GetProcesses();
 
             foreach (Process process in processes)
             {
-                if (!String.IsNullOrEmpty(process.MainWindowTitle))
+                if (!String.IsNullOrEmpty(systemAPICalls.GetProcessMainWindowTitle(process)))
                 {
                     try
                     {
-                        if (!wndList.ContainsKey(process.ProcessName) &&
-                            process.Responding &&
-                            process.ProcessName != "ApplicationFrameHostx" &&
-                            process.ProcessName != "u3WindowsManager" &&
-                            process.MainWindowTitle != ""
+                        if (!wndList.ContainsKey(systemAPICalls.GetProcessName(process)) &&
+                            systemAPICalls.IsProcessResponding(process) &&
+                            systemAPICalls.GetProcessName(process) != "ApplicationFrameHostx" &&
+                            systemAPICalls.GetProcessName(process) != "u3WindowsManager" &&
+                            systemAPICalls.GetProcessMainWindowTitle(process) != ""
                             )
                         {
-                            wndList.Add(process.ProcessName, process);
+                            wndList.Add(systemAPICalls.GetProcessName(process), process);
                         }
                     }
                     catch
@@ -175,8 +193,7 @@ namespace u3WindowsManager
             return wndList;
         }
 
-
-        public List<SimpleEntry> SaveDictionary(Dictionary<string, Process> windows, SystemAPICalls systemAPICalls)
+        public List<SimpleEntry> SaveDictionary(Dictionary<string, Process> windows, ISystemAPICalls systemAPICalls)
         {
             var list = new List<SimpleEntry>();
             foreach (string key in windows.Keys)
@@ -187,18 +204,18 @@ namespace u3WindowsManager
             return list;
         }
 
-        public void SaveAllWindows(string fileName, SystemAPICalls systemAPICalls)
+        public void SaveAllWindows(string fileName, ISystemAPICalls systemAPICalls)
         {
             Dictionary<string, Process> windows = GetAllWindows(systemAPICalls);
             List<SimpleEntry> entries = SaveDictionary(windows, systemAPICalls);
-            File.WriteAllText(fileName, JsonSerializer.Serialize(entries));
+            systemAPICalls.FileWriteAllText(fileName, JsonSerializer.Serialize(entries));
         }
 
-        public void RestoreAllWindows(string fileName, SystemAPICalls systemAPICalls)
+        public void RestoreAllWindows(string fileName, ISystemAPICalls systemAPICalls)
         {
             try
             {
-                string file = File.ReadAllText(fileName, System.Text.Encoding.UTF8);
+                string file = systemAPICalls.FileReadAllText(fileName);
                 List<SimpleEntry> entries = JsonSerializer.Deserialize<List<SimpleEntry>>(file);
 
                 Dictionary<string, Process> windows = GetAllWindows(systemAPICalls);
@@ -238,7 +255,7 @@ namespace u3WindowsManager
             }
         }
 
-        public void SelectWindowsAndSave(string fileName, SystemAPICalls systemAPICalls)
+        public void SelectWindowsAndSave(string fileName, ISystemAPICalls systemAPICalls)
         {
             WindowsSelectionList theWindowsSelect = new WindowsSelectionList();
             Dictionary<string, Process> windows = GetAllWindows(systemAPICalls);
@@ -257,7 +274,7 @@ namespace u3WindowsManager
                         selectedWindows.Add(selected_item, process);
                 }
                 List<SimpleEntry> entries = SaveDictionary(selectedWindows, systemAPICalls);
-                File.WriteAllText(fileName, JsonSerializer.Serialize(entries));
+                systemAPICalls.FileWriteAllText(fileName, JsonSerializer.Serialize(entries));
             }
         }
 
