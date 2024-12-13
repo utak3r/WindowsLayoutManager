@@ -63,19 +63,22 @@ namespace u3WindowsManager
         private void MnuSaveAll_Click(object? sender, EventArgs e)
         {
             WndManager wndManager = new WndManager();
-            wndManager.SaveAllWindows();
+            WndManager.SystemAPICalls apiCalls = new();
+            wndManager.SaveAllWindows("testentries.json", apiCalls);
         }
 
         private void MnuRestoreAll_Click(object? sender, EventArgs e)
         {
             WndManager wndManager = new WndManager();
-            wndManager.RestoreAllWindows();
+            WndManager.SystemAPICalls apiCalls = new();
+            wndManager.RestoreAllWindows("testentries.json", apiCalls);
         }
 
         private void MnuSaveSelected_Click(object sender, EventArgs e)
         {
             WndManager wndManager = new WndManager();
-            wndManager.SelectWindowsAndSave();
+            WndManager.SystemAPICalls apiCalls = new();
+            wndManager.SelectWindowsAndSave("testentries.json", apiCalls);
         }
 
 

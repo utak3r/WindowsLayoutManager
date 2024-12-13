@@ -1,20 +1,5 @@
 cmake_minimum_required (VERSION 3.30)
 
-# Configure the Version.cs file
-configure_file(
-        Version.cs.in
-        Version.cs
-)
-
-project (
-			u3WindowsManager
-			VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}.${VERSION_BUILD}
-			DESCRIPTION "Windows Layout Manager"
-			LANGUAGES CSharp
-		)
-
-set (RESOURCES_APP_ICON "${CMAKE_SOURCE_DIR}/res/TrayAppIcon.ico")
-
 add_executable (
 			u3WindowsManager
 			${CMAKE_CURRENT_BINARY_DIR}/Version.cs
@@ -34,6 +19,7 @@ set_target_properties (
 			VS_GLOBAL_UseWindowsForms "true"
 			VS_GLOBAL_ImplicitUsings "enable"
 			VS_GLOBAL_ApplicationIcon "${CMAKE_SOURCE_DIR}/res/TrayAppIcon.ico"
+			VS_GLOBAL_Version "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}.${VERSION_BUILD}" FILE_CONTENTS "${FILE_CONTENTS}"
 	)
 			#VS_GLOBAL_Version "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}.${VERSION_BUILD}" FILE_CONTENTS "${FILE_CONTENTS}"
 			#VS_GLOBAL_PublishSingleFile true

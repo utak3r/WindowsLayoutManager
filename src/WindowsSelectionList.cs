@@ -89,5 +89,16 @@ namespace u3WindowsManager
             listWindows.Items.Add(item_name);
         }
 
+        public List<string> SelectedItems()
+        {
+            List<string> selected = new List<string>();
+            foreach (ListViewItem item in listWindows.Items)
+            {
+                if (item.Checked)
+                    selected.Add(item.Text);
+            }
+            return selected;
+        }
+
     }
 }

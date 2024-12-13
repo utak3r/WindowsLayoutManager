@@ -3,6 +3,7 @@ using System.DirectoryServices;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+using System.Windows.Forms;
 using u3WindowsManager;
 
 namespace u3WindowsManager
@@ -73,93 +74,80 @@ namespace u3WindowsManager
             }
         }
 
+        public class SystemAPICalls
+        {
+            public virtual RECT GetAPIWindowRect(IntPtr hWnd)
+            {
+                RECT rect;
+                GetWindowRect(hWnd, out rect);
+                return rect;
+            }
+
+            public virtual WINDOWPLACEMENT GetAPIWindowPlacement(IntPtr hWnd)
+            {
+                WINDOWPLACEMENT wndPlacement;
+                GetWindowPlacement(hWnd, out wndPlacement);
+                return wndPlacement;
+            }
+
+            public virtual Process[] GetProcesses()
+            {
+                return Process.GetProcesses();
+            }
+
+            public virtual IntPtr GetProcessMainWindowHandle(Process process)
+            {
+                return process.MainWindowHandle;
+            }
+
+            public virtual string GetProcessName(Process process)
+            {
+                return process.ProcessName;
+            }
+
+        }
+
+        public class ConfigFileOperations
+        {
+            public static void SaveEntriesToFile(string filename, List<SimpleEntry> entries)
+            {
+                File.WriteAllText(filename, JsonSerializer.Serialize(entries));
+            }
+
+            public static List<SimpleEntry> ReadEntriesFromFile(string filename)
+            {
+                string file = File.ReadAllText(filename, System.Text.Encoding.UTF8);
+                List<SimpleEntry> entries = JsonSerializer.Deserialize<List<SimpleEntry>>(file);
+                return entries;
+            }
+        }
 
         public WndManager()
         {
             //
         }
 
-        public void SaveAllWindows()
+        public SimpleEntry GetProcessWindowGeometry(Process process, SystemAPICalls systemAPICalls)
         {
-            List<SimpleEntry> entries = new();
-            Dictionary<string, Process> windows = GetAllWindows();
-            foreach (string key in windows.Keys)
+            IntPtr hWnd = systemAPICalls.GetProcessMainWindowHandle(process);
+            RECT rect = systemAPICalls.GetAPIWindowRect(hWnd);
+            WINDOWPLACEMENT wndPlacement = systemAPICalls.GetAPIWindowPlacement(hWnd);
+            SimpleEntry entry = new()
             {
-                Process process = windows[key];
-                IntPtr hWnd = process.MainWindowHandle;
-                WINDOWPLACEMENT wndPlacement;
-                RECT rect;
-
-                GetWindowRect(hWnd, out rect);
-                GetWindowPlacement(hWnd, out wndPlacement);
-                SimpleEntry entry = new()
-                {
-                    Name = key,
-                    Left = rect.Left,
-                    Top = rect.Top,
-                    Right = rect.Right,
-                    Bottom = rect.Bottom,
-                    ShowCmd = wndPlacement.showCmd
-                };
-                entries.Add(entry);
-            }
-            File.WriteAllText("testentries.json", JsonSerializer.Serialize(entries));
+                Name = systemAPICalls.GetProcessName(process),
+                Left = rect.Left,
+                Top = rect.Top,
+                Right = rect.Right,
+                Bottom = rect.Bottom,
+                ShowCmd = wndPlacement.showCmd
+            };
+            return entry;
         }
 
-        public void RestoreAllWindows()
-        {
-            string file = File.ReadAllText("testentries.json", System.Text.Encoding.UTF8);
-            List<SimpleEntry> entries = JsonSerializer.Deserialize<List<SimpleEntry>>(file);
-
-            Dictionary<string, Process> windows = GetAllWindows();
-            foreach (string key in windows.Keys)
-            {
-                if (entries.Exists(x => x.Name == key))
-                {
-                    // The below IF is just for DEBUG!!
-                    // if (key == "TOTALCMD64")
-                    {
-                        SimpleEntry entry = entries.Find(x => x.Name == key);
-                        Process process = windows[key];
-                        IntPtr hWnd = process.MainWindowHandle;
-                        WINDOWPLACEMENT wndPlacement;
-                        RECT rect;
-
-                        GetWindowPlacement(hWnd, out wndPlacement);
-                        wndPlacement.showCmd = 1;
-                        SetWindowPlacement(hWnd, wndPlacement);
-                        SetForegroundWindow(hWnd);
-                        wndPlacement.rcNormalPosition.Left = entry.Left;
-                        wndPlacement.rcNormalPosition.Top = entry.Top;
-                        wndPlacement.rcNormalPosition.Bottom = entry.Bottom;
-                        wndPlacement.rcNormalPosition.Right = entry.Right;
-                        wndPlacement.showCmd = entry.ShowCmd;
-                        SetWindowPlacement(hWnd, wndPlacement);
-                    }
-                }
-            }
-
-        }
-
-        public void SelectWindowsAndSave()
-        {
-            WindowsSelectionList theWindowsSelect = new WindowsSelectionList();
-            Dictionary<string, Process> windows = GetAllWindows();
-            foreach (string key in windows.Keys)
-            {
-                theWindowsSelect.AddItem(key);
-            }
-            theWindowsSelect.ShowDialog();
-            if (theWindowsSelect.DialogResult == DialogResult.OK)
-            {
-                //
-            }
-        }
-
-        private Dictionary<string, Process> GetAllWindows()
+        private Dictionary<string, Process> GetAllWindows(SystemAPICalls systemAPICalls)
         {
             Dictionary<string, Process> wndList = new Dictionary<string, Process>();
-            Process[] processes = Process.GetProcesses();
+            Process[] processes = systemAPICalls.GetProcesses();
 
             foreach (Process process in processes)
             {
@@ -167,8 +155,8 @@ namespace u3WindowsManager
                 {
                     try
                     {
-                        if (!wndList.ContainsKey(process.ProcessName) && 
-                            process.Responding && 
+                        if (!wndList.ContainsKey(process.ProcessName) &&
+                            process.Responding &&
                             process.ProcessName != "ApplicationFrameHostx" &&
                             process.ProcessName != "u3WindowsManager" &&
                             process.MainWindowTitle != ""
@@ -185,6 +173,92 @@ namespace u3WindowsManager
             }
 
             return wndList;
+        }
+
+
+        public List<SimpleEntry> SaveDictionary(Dictionary<string, Process> windows, SystemAPICalls systemAPICalls)
+        {
+            var list = new List<SimpleEntry>();
+            foreach (string key in windows.Keys)
+            {
+                SimpleEntry entry = GetProcessWindowGeometry(windows[key], systemAPICalls);
+                list.Add(entry);
+            }
+            return list;
+        }
+
+        public void SaveAllWindows(string fileName, SystemAPICalls systemAPICalls)
+        {
+            Dictionary<string, Process> windows = GetAllWindows(systemAPICalls);
+            List<SimpleEntry> entries = SaveDictionary(windows, systemAPICalls);
+            File.WriteAllText(fileName, JsonSerializer.Serialize(entries));
+        }
+
+        public void RestoreAllWindows(string fileName, SystemAPICalls systemAPICalls)
+        {
+            try
+            {
+                string file = File.ReadAllText(fileName, System.Text.Encoding.UTF8);
+                List<SimpleEntry> entries = JsonSerializer.Deserialize<List<SimpleEntry>>(file);
+
+                Dictionary<string, Process> windows = GetAllWindows(systemAPICalls);
+                foreach (string key in windows.Keys)
+                {
+                    if (entries.Exists(x => x.Name == key))
+                    {
+                        // The below IF is just for DEBUG!!
+                        // if (key == "TOTALCMD64")
+                        {
+                            SimpleEntry entry = entries.Find(x => x.Name == key);
+                            Process process = windows[key];
+                            IntPtr hWnd = process.MainWindowHandle;
+                            WINDOWPLACEMENT wndPlacement;
+                            RECT rect;
+
+                            GetWindowPlacement(hWnd, out wndPlacement);
+                            wndPlacement.showCmd = 1;
+                            SetWindowPlacement(hWnd, wndPlacement);
+                            SetForegroundWindow(hWnd);
+                            wndPlacement.rcNormalPosition.Left = entry.Left;
+                            wndPlacement.rcNormalPosition.Top = entry.Top;
+                            wndPlacement.rcNormalPosition.Bottom = entry.Bottom;
+                            wndPlacement.rcNormalPosition.Right = entry.Right;
+                            wndPlacement.showCmd = entry.ShowCmd;
+                            SetWindowPlacement(hWnd, wndPlacement);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex) when (ex is ArgumentNullException ||
+                           ex is NotSupportedException ||
+                           ex is FileNotFoundException ||
+                           ex is JsonException)
+            {
+                //
+            }
+        }
+
+        public void SelectWindowsAndSave(string fileName, SystemAPICalls systemAPICalls)
+        {
+            WindowsSelectionList theWindowsSelect = new WindowsSelectionList();
+            Dictionary<string, Process> windows = GetAllWindows(systemAPICalls);
+            Dictionary<string, Process> selectedWindows = new Dictionary<string, Process>();
+            foreach (string key in windows.Keys)
+            {
+                theWindowsSelect.AddItem(key);
+            }
+            theWindowsSelect.ShowDialog();
+            if (theWindowsSelect.DialogResult == DialogResult.OK)
+            {
+                List<string> selected = theWindowsSelect.SelectedItems();
+                foreach (string selected_item in selected)
+                {
+                    if (windows.TryGetValue(selected_item, out Process process))
+                        selectedWindows.Add(selected_item, process);
+                }
+                List<SimpleEntry> entries = SaveDictionary(selectedWindows, systemAPICalls);
+                File.WriteAllText(fileName, JsonSerializer.Serialize(entries));
+            }
         }
 
     }
