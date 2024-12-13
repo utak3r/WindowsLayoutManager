@@ -1,5 +1,6 @@
 # CMake build directory
-build-mvs22/
+/build-mvs22/
+/build-release/
 # User specific paths definitions
 _set_user_paths.cmd
 

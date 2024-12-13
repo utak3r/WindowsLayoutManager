@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.30)
 
 add_executable (
 			u3WindowsManager
-			${CMAKE_CURRENT_BINARY_DIR}/Version.cs
+			${CMAKE_BINARY_DIR}/Version.cs
 			Program.cs
 			TrayApp.cs
 			WndManager.cs
