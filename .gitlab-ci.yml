@@ -1,17 +1,49 @@
+variables:
+  GIT_DEPTH: 1000
+
 stages:
   - build
   - test
+  - package
 
-build:
+win_build:
+  stage: build
   tags:
     - visualstudio
     - windows
   script:
     - ./build_release.cmd
+  artifacts:
+    name: "%CI_JOB_STAGE%-%CI_COMMIT_REF_NAME%"
+    paths:
+      - build-release/bin/Release
 
-test:
+
+win_test:
+  stage: test
   tags:
     - visualstudio
     - windows
+  dependencies:
+    - win_build
   script:
-    - c:\users\pito\.nuget\packages\nunit.consolerunner\3.18.3\tools\nunit3-console.exe .\build-release\bin\Release\u3WindowsManagerTest.dll
+    - ./build_release_test.cmd
+  artifacts:
+    when: always
+    reports:
+      junit: TestResult.xml
+
+
+win_package:
+  stage: package
+  tags:
+    - visualstudio
+    - windows
+  dependencies:
+    - win_build
+  script:
+    - cd build-release/bin/Release; zip -r -9 -o package.zip . ; mv package.zip ../../..
+  artifacts:
+    name: 'release-build'
+    paths: ['package.zip']
+

@@ -1,0 +1,1 @@
+c:\users\pito\.nuget\packages\nunit.consolerunner\3.18.3\tools\nunit3-console.exe .\build-release\bin\Release\u3WindowsManagerTest.dll --result:TestResult.xml;transform=nunit-to-junit.xsl
