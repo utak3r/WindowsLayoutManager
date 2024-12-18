@@ -162,25 +162,29 @@ namespace u3WindowsManager
             return entry;
         }
 
-        private Dictionary<string, Process> GetAllWindows(ISystemAPICalls systemAPICalls)
+        public Dictionary<string, Process> GetAllWindows(ISystemAPICalls systemAPICalls)
         {
             Dictionary<string, Process> wndList = new Dictionary<string, Process>();
             Process[] processes = systemAPICalls.GetProcesses();
 
             foreach (Process process in processes)
             {
-                if (!String.IsNullOrEmpty(systemAPICalls.GetProcessMainWindowTitle(process)))
+                string winTitle = systemAPICalls.GetProcessMainWindowTitle(process);
+                if (!String.IsNullOrEmpty(winTitle))
                 {
                     try
                     {
-                        if (!wndList.ContainsKey(systemAPICalls.GetProcessName(process)) &&
+                        string name = systemAPICalls.GetProcessName(process);
+                        if (!wndList.ContainsKey(name) &&
                             systemAPICalls.IsProcessResponding(process) &&
-                            systemAPICalls.GetProcessName(process) != "ApplicationFrameHostx" &&
-                            systemAPICalls.GetProcessName(process) != "u3WindowsManager" &&
-                            systemAPICalls.GetProcessMainWindowTitle(process) != ""
+                            name != "ApplicationFrameHostx" &&
+                            name != "ApplicationFrameHost" &&
+                            name != "u3WindowsManager" &&
+                            name != "TextInputHost" &&
+                            winTitle != ""
                             )
                         {
-                            wndList.Add(systemAPICalls.GetProcessName(process), process);
+                            wndList.Add(name, process);
                         }
                     }
                     catch

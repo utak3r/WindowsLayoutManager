@@ -95,5 +95,39 @@ namespace u3WindowsManagerTests
             Assert.That(wndlist.Count, Is.EqualTo(3));
         }
 
+        [Test]
+        public void WndManagerTest_GetAllWindows()
+        {
+            var processNames = new Queue<string>();
+            processNames.Enqueue("Fantastic process");
+            processNames.Enqueue("Great process");
+            processNames.Enqueue("ApplicationFrameHost");
+            processNames.Enqueue("Nice process");
+            processNames.Enqueue("ApplicationFrameHostx");
+            processNames.Enqueue("Good process");
+            processNames.Enqueue("Ok process");
+            processNames.Enqueue("u3WindowsManager");
+            processNames.Enqueue("Yet Another Process");
+            processNames.Enqueue("Another process");
+            processNames.Enqueue("TextInputHost");
+            processNames.Enqueue("Boring stuff");
+
+            Mock<WndManager.ISystemAPICalls> systemAPICallsMock = new Mock<WndManager.ISystemAPICalls>();
+            systemAPICallsMock.Setup(p => p.GetProcesses()).Returns(new Process[12]);
+            systemAPICallsMock.Setup(w => w.GetProcessMainWindowTitle(It.IsAny<Process>())).Returns("Nice main window title");
+            systemAPICallsMock.Setup(n => n.GetProcessName(It.IsAny<Process>())).Returns(processNames.Dequeue);
+            systemAPICallsMock.Setup(r => r.IsProcessResponding(It.IsAny<Process>())).Returns(true);
+
+            WndManager wndManager = new();
+            Dictionary<string, Process> windows = wndManager.GetAllWindows(systemAPICallsMock.Object);
+
+            // we had 12 processes, but 4 of them have illegal names and shouldn't be added to the list.
+            Assert.That(windows.Count, Is.EqualTo(8));
+            Assert.That(windows.ContainsKey("ApplicationFrameHostx"), Is.False);
+            Assert.That(windows.ContainsKey("ApplicationFrameHost"), Is.False);
+            Assert.That(windows.ContainsKey("TextInputHost"), Is.False);
+            Assert.That(windows.ContainsKey("u3WindowsManager"), Is.False);
+        }
+
     }
 }
