@@ -7,4 +7,4 @@ set PATH=%CMAKE_PATH%;%PATH%
 
 mkdir build-mvs22
 cd build-mvs22
-cmake -G "Visual Studio 17 2022" ..
+cmake -G "Visual Studio 17 2022" -A x64 ..

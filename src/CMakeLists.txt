@@ -20,6 +20,7 @@ set_target_properties (
 			VS_GLOBAL_ImplicitUsings "enable"
 			VS_GLOBAL_ApplicationIcon "${CMAKE_SOURCE_DIR}/res/TrayAppIcon.ico"
 			VS_GLOBAL_Version "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}.${VERSION_BUILD}" FILE_CONTENTS "${FILE_CONTENTS}"
+			VS_GLOBAL_GenerateRuntimeConfigurationFiles "true"
 	)
 			#VS_GLOBAL_Version "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}.${VERSION_BUILD}" FILE_CONTENTS "${FILE_CONTENTS}"
 			#VS_GLOBAL_PublishSingleFile true
@@ -27,7 +28,8 @@ set_target_properties (
 
 set_property(SOURCE ${RESOURCES_APP_ICON} PROPERTY VS_TOOL_OVERRIDE "EmbeddedResource")
 
-set_property (TARGET u3WindowsManager PROPERTY VS_DOTNET_REFERENCES
+set (EXE_NAME u3WindowsManager)
+set_property (TARGET ${EXE_NAME} PROPERTY VS_DOTNET_REFERENCES
 			"Microsoft.CSharp"
 			"System"
 			"System.Core"
@@ -41,3 +43,16 @@ set_property (TARGET u3WindowsManager PROPERTY VS_DOTNET_REFERENCES
 			"System.Diagnostics"
 			"System.Text.Json"
 	  )
+
+set(CMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD 0)
+
+install(TARGETS ${EXE_NAME} RUNTIME DESTINATION .)
+install(FILES 
+			${CMAKE_BINARY_DIR}/bin/Release/${EXE_NAME}.dll
+			${CMAKE_BINARY_DIR}/bin/Release/${EXE_NAME}.runtimeconfig.json
+		DESTINATION .
+	)
+
+set(CPACK_SYSTEM_NAME "win64")
+set(CPACK_GENERATOR ZIP)
+include(CPack)

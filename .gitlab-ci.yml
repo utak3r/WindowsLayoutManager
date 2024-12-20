@@ -42,8 +42,8 @@ win_package:
   dependencies:
     - win_build
   script:
-    - cd build-release/bin/Release; zip -r -9 -o package.zip . ; mv package.zip ../../..
+    - ./build_release_pack.cmd
   artifacts:
     name: 'release-build'
-    paths: ['package.zip']
+    paths: ./build-release/u3WindowsManagerApp-*.zip
 
