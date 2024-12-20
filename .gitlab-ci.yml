@@ -45,5 +45,6 @@ win_package:
     - ./build_release_pack.cmd
   artifacts:
     name: 'release-build'
-    paths: ./build-release/u3WindowsManagerApp-*.zip
+    paths: 
+      - ./build-release/u3WindowsManagerApp-*.zip
 
