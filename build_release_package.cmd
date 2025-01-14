@@ -4,8 +4,6 @@ set WIX_PATH=c:\devel\WiX
 @call _set_user_paths.cmd
 set PATH=%CMAKE_PATH%;%WIX_PATH%;%PATH%
 
-@call "%VS_PATH%\Common7\Tools\vsdevcmd.bat" -no_ext -winsdk=none %*
-
-mkdir build-mvs22
-cd build-mvs22
-cmake -G "Visual Studio 17 2022" -A x64 ..
+@call "%VS_PATH%\Common7\Tools\vsdevcmd.bat" -no_ext -winsdk=none
+cd build-release
+cpack --config CPackConfig.cmake

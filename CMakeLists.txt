@@ -2,7 +2,12 @@ cmake_minimum_required (VERSION 3.31)
 
 set (VERSION_MAJOR 1)
 set (VERSION_MINOR 0)
-set (VERSION_REVISION 0)
+set (VERSION_REVISION 1)
+set (PRODUCT_AUTHORS "Piotr 'utak3r' Borys")
+set (PRODUCT_COPYRIGHT "Piotr 'utak3r' Borys")
+set (PACKAGE_NAME "u3WindowsManager")
+set (PACKAGE_UPGRADE_GUID "2FDF1134-2187-4283-A02D-1AC1DCFFD575")
+set (PACKAGE_ARCH "win64")
 
 find_package(Git)
 if(GIT_FOUND)
@@ -69,3 +74,5 @@ set (RESOURCES_APP_ICON "${CMAKE_SOURCE_DIR}/res/TrayAppIcon.ico")
 
 add_subdirectory(src)
 add_subdirectory(test)
+
+file (WRITE "${CMAKE_BINARY_DIR}/build_info.txt" "PACKAGE_NAME = ${PACKAGE_NAME}\nPACKAGE_VERSION = ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}\nPACKAGE_ARCH = ${PACKAGE_ARCH}\n")

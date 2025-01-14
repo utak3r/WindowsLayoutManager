@@ -4,6 +4,7 @@ variables:
 stages:
   - build
   - test
+  - package
 
 win_build:
   stage: build
@@ -13,10 +14,8 @@ win_build:
   script:
     - ./build_release.cmd
   artifacts:
-    name: "%CI_JOB_STAGE%-%CI_COMMIT_REF_NAME%"
     paths:
-      - build-release/bin/Release
-      - build-release/u3WindowsManagerApp-*.zip
+      - build-release/
 
 
 win_test:
@@ -33,3 +32,16 @@ win_test:
     reports:
       junit: TestResult.xml
 
+
+win_package:
+  stage: package
+  tags:
+    - visualstudio
+    - windows
+  dependencies:
+    - win_build
+  script:
+    - ./build_release_package.cmd
+  artifacts:
+    paths:
+      - build-release/u3WindowsManager-*.msi
