@@ -33,7 +33,6 @@ win_test:
       junit: TestResult.xml
 
 
-include: 'build-release/build_info.yml'
 win_package:
   stage: package
   tags:
@@ -45,4 +44,4 @@ win_package:
     - ./build_release_package.cmd
   artifacts:
     paths:
-      - build-release/$PACKAGE_NAME-$PACKAGE_VERSION-$PACKAGE_ARCH.msi
+      - build-release/u3WindowsManager-1.0.1-win64.msi
