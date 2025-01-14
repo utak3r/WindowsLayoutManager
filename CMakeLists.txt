@@ -2,7 +2,9 @@ cmake_minimum_required (VERSION 3.31)
 
 set (VERSION_MAJOR 1)
 set (VERSION_MINOR 0)
-set (VERSION_REVISION 0)
+set (VERSION_REVISION 1)
+set (PRODUCT_AUTHORS "Piotr 'utak3r' Borys")
+set (PRODUCT_COPYRIGHT "Piotr 'utak3r' Borys")
 
 find_package(Git)
 if(GIT_FOUND)
