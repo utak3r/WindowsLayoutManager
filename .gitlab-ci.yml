@@ -14,9 +14,8 @@ win_build:
   script:
     - ./build_release.cmd
   artifacts:
-    name: "$env:CI_JOB_STAGE-$env:CI_COMMIT_REF_NAME"
     paths:
-      - build-release/bin/Release/
+      - build-release/
 
 
 win_test:
