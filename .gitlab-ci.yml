@@ -4,6 +4,7 @@ variables:
 stages:
   - build
   - test
+  - package
 
 win_build:
   stage: build
@@ -34,7 +35,7 @@ win_test:
 
 
 win_package:
-  stage: build
+  stage: package
   tags:
     - visualstudio
     - windows
