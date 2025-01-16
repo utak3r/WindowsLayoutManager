@@ -9,6 +9,8 @@ namespace u3WindowsManager
     internal class TrayApp : ApplicationContext
     {
         NotifyIcon? theTray = null;
+        string theAppDataDir = @"%USERPROFILE%\AppData\Local\u3WindowsManager";
+        string theAppDataWindowsFile = "windows_settings.json";
 
         public TrayApp()
         {
@@ -64,21 +66,21 @@ namespace u3WindowsManager
         {
             WndManager wndManager = new WndManager();
             WndManager.SystemAPICalls apiCalls = new();
-            wndManager.SaveAllWindows("testentries.json", apiCalls);
+            wndManager.SaveAllWindows(theAppDataDir, theAppDataWindowsFile, apiCalls);
         }
 
         private void MnuRestoreAll_Click(object? sender, EventArgs e)
         {
             WndManager wndManager = new WndManager();
             WndManager.SystemAPICalls apiCalls = new();
-            wndManager.RestoreAllWindows("testentries.json", apiCalls);
+            wndManager.RestoreAllWindows(theAppDataDir, theAppDataWindowsFile, apiCalls);
         }
 
         private void MnuSaveSelected_Click(object sender, EventArgs e)
         {
             WndManager wndManager = new WndManager();
             WndManager.SystemAPICalls apiCalls = new();
-            wndManager.SelectWindowsAndSave("testentries.json", apiCalls);
+            wndManager.SelectWindowsAndSave(theAppDataDir, theAppDataWindowsFile, apiCalls);
         }
 
 
