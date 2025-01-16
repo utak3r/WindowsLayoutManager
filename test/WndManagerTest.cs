@@ -129,5 +129,61 @@ namespace u3WindowsManagerTests
             Assert.That(windows.ContainsKey("u3WindowsManager"), Is.False);
         }
 
+        [Test]
+        public void WndManagerTest_SaveAllWindows()
+        {
+            var processNames = new Queue<string>();
+            // GetProcessName will be called twice
+            processNames.Enqueue("Test Process 1");
+            processNames.Enqueue("Test Process 2");
+            processNames.Enqueue("Test Process 3");
+            processNames.Enqueue("Test Process 1");
+            processNames.Enqueue("Test Process 2");
+            processNames.Enqueue("Test Process 3");
+
+            Mock<WndManager.ISystemAPICalls> systemAPICallsMock = new Mock<WndManager.ISystemAPICalls>();
+            systemAPICallsMock.Setup(p => p.GetProcesses()).Returns(new Process[3]);
+            systemAPICallsMock.Setup(w => w.GetProcessMainWindowTitle(It.IsAny<Process>())).Returns("Nice main window title");
+            systemAPICallsMock.Setup(n => n.GetProcessName(It.IsAny<Process>())).Returns(processNames.Dequeue);
+            systemAPICallsMock.Setup(r => r.IsProcessResponding(It.IsAny<Process>())).Returns(true);
+            systemAPICallsMock.Setup(h => h.GetProcessMainWindowHandle(It.IsAny<Process>())).Returns((IntPtr)1234);
+            systemAPICallsMock.Setup(c => c.GetAPIWindowRect(It.IsAny<nint>()))
+                .Returns(new WndManager.RECT
+                {
+                    Left = 0,
+                    Top = 0,
+                    Right = 600,
+                    Bottom = 400
+                });
+            systemAPICallsMock.Setup(m => m.GetAPIWindowPlacement(It.IsAny<nint>()))
+                .Returns(new WndManager.WINDOWPLACEMENT
+                {
+                    length = 0,
+                    flags = 0,
+                    showCmd = 0,
+                    ptMinPosition = new WndManager.POINT { x = 0, y = 0 },
+                    ptMaxPosition = new WndManager.POINT { y = 0, x = 0 },
+                    rcNormalPosition = new WndManager.RECT { Left = 0, Top = 0, Right = 600, Bottom = 400 },
+                    rcDevice = new WndManager.RECT { Left = 0, Top = 0, Right = 600, Bottom = 400 }
+                });
+
+            string test_dir = "";
+            string test_filename = "";
+            string test_text = "";
+            systemAPICallsMock
+                .Setup(f => f.FileWriteAllText(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Callback<string, string, string>((cdir, cfile, ctext) => { test_dir = cdir; test_filename = cfile; test_text = ctext; });
+
+            WndManager wndManager = new();
+            string appDataDir = @"c:\Programs\MyApp";
+            string appDataFile = "DataFile.dat";
+            wndManager.SaveAllWindows(appDataDir, appDataFile, systemAPICallsMock.Object);
+
+            Assert.That(test_dir, Is.EqualTo(appDataDir));
+            Assert.That(test_filename, Is.EqualTo(appDataFile));
+            Assert.That(test_text, Is.EqualTo("[{\"Name\":\"Test Process 1\",\"Left\":0,\"Top\":0,\"Right\":600,\"Bottom\":400,\"ShowCmd\":0},{\"Name\":\"Test Process 2\",\"Left\":0,\"Top\":0,\"Right\":600,\"Bottom\":400,\"ShowCmd\":0},{\"Name\":\"Test Process 3\",\"Left\":0,\"Top\":0,\"Right\":600,\"Bottom\":400,\"ShowCmd\":0}]"));
+
+        }
+
     }
 }
